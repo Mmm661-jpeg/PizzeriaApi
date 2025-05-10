@@ -51,9 +51,40 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public Task<bool> DeleteOrderAsync(int orderId)
+        public async Task<bool> DeleteOrderAsync(int orderId)
         {
-            throw new NotImplementedException();
+            if(orderId <= 0)
+            {
+                _logger.LogWarning("DeleteOrderAsync: OrderId invalid");
+                return false;
+            }
+            try
+            {
+                var order = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                {
+                    _logger.LogDebug("DeleteOrderAsync: No order found with id: {OrderId}", orderId);
+                    return false;
+                }
+
+                _dbContext.Orders.Remove(order);
+                var affected = await _dbContext.SaveChangesAsync();
+
+                if (affected <= 0)
+                {
+                    _logger.LogDebug("DeleteOrderAsync: Deleting order with id: {OrderId} failed", orderId);
+                    return false;
+                }
+
+                return true;
+            }
+       
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error: DeleteOrderAsync failed");
+                return false;
+            }
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
