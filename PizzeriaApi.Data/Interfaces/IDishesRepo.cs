@@ -15,7 +15,7 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<IEnumerable<Dish>> GetDishesByNameAsync(string dishName);
 
-        Task<Dish> GetOneDishByIdAsync(int DishId);
+        Task<Dish> GetOneDishByIdAsync(int dishId);
 
         Task<Dish> GetOneDishByNameAsync(string dishName);
 

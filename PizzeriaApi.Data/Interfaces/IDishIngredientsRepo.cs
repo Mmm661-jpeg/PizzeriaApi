@@ -9,15 +9,33 @@ namespace PizzeriaApi.Data.Interfaces
 {
     public interface IDishIngredientsRepo
     {
-        Task<bool> AddIngredientAsync(Ingredient ingredient);
-        Task<bool> DeleteIngredientAsync(int ingredientId);
+        Task<bool> AddDishIngredientAsync(DishIngredient dishIngredient);
 
-        Task<bool> UpdateIngredientAsync(Ingredient ingredient);
+        Task<bool> AddDishIngredientsAsync(IEnumerable<DishIngredient> ingredients);
+        Task<bool> DeleteIngredientAsync(int dishIngredient);
 
-        Task<IEnumerable<Ingredient>> GetAllAsync();
+        Task<bool> UpdateDishIngredientAsync(DishIngredient dishIngredient);
 
-        Task<Ingredient?> GetIngredientByNameAsync(string ingredientName);
+        Task<DishIngredient?> GetDishIngredientAsync(int dishId, int ingredientId);
 
-        Task<Ingredient?> GetIngredientByIdAsync(int ingredientId);
+        Task<IEnumerable<DishIngredient>> GetDishIngredientsAsyncWithDishId(int dishId);
+
+        Task<IEnumerable<Dish>> GetDishesByIngredientIdAsync(int ingredientId);
+
+        Task<IEnumerable<Ingredient>> GetIngredientsByDIshIdAsync(int dishId);
+
+        Task<decimal> GetIngredientQuantityForDishAsync(int dishId, int ingredientId);
+
+        Task<decimal> CalculateEventuallIngredientCostAsync(int ingredientId, decimal quantity);
+
+        Task<decimal> CalculateIngredientCostForDishAsync(int ingredientId, int dishId);
+
+        Task<decimal> CalculateCostForDishAsync(int dishId);
+
+        Task<decimal> GetRecommendedPriceForDishAsync(int dishId);
+
+        Task<int> EvaluateCurrentPriceForDishAsync(int dishId);
+
+        Task<bool> DishHasIngredientAsync(int dishId, int ingredientId);
     }
 }

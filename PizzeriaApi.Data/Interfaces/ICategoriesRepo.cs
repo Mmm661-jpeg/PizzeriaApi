@@ -9,15 +9,17 @@ namespace PizzeriaApi.Data.Interfaces
 {
     public interface ICategoriesRepo
     {
-        Task<IEnumerable<Category>> GetAllCategoriesAsync();
+        Task<IEnumerable<Category?>> GetAllCategoriesAsync();
 
-        Task<Category> GetCategoryByIdAsync(int categoryId);
+        Task<Category?> GetCategoryByIdAsync(int categoryId);
 
-        Task<Category> GetCategoryByNameAsync(string Categoryname);
+        Task<Category?> GetCategoryByNameAsync(string categoryName);
 
         Task<bool> AddCategory(Category category);
 
         Task<bool> DeleteCategoryById(int categoryId);
+
+        Task<bool> UpdateCategory(string categoryName);
 
     }
 }

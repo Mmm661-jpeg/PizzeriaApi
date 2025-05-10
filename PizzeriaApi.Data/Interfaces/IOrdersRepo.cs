@@ -19,10 +19,19 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<IEnumerable<Order>> GetOrdersByStatusAsync(OrderStatus status);
 
+        Task<IEnumerable<Order>> GetOrdersUsingBonusAsync();
+
         Task<bool> CreateOrderAsync(Order order);
 
         Task<bool> UpdateOrderAsync(Order order);
 
         Task<bool> DeleteOrderAsync(int orderId);
+
+        Task<bool> CancelOrderAsync(int orderId, string userId,string? reason);
+
+        Task<Order?> GetPendingOrderForUserAsync(string userId);
+
+
+
     }
 }

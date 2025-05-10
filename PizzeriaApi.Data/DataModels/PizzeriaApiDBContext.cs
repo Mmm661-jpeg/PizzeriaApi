@@ -166,6 +166,10 @@ namespace PizzeriaApi.Data.DataModels
                         .HasMaxLength(50)
                         .IsRequired();
 
+                    entity.Property(o => o.CancellationReason)
+                            .HasMaxLength(100);
+
+
                     entity.HasOne(o => o.User)
                         .WithMany(u => u.Orders)
                         .HasForeignKey(o => o.UserId)
