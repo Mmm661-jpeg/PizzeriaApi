@@ -3,15 +3,10 @@ using Microsoft.Extensions.Logging;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PizzeriaApi.Data.Repository
 {
-    public class OrderItemsRepo:IOrderItemsRepo
+    public class OrderItemsRepo : IOrderItemsRepo
     {
         private readonly PizzeriaApiDBContext _dbContext;
         private readonly ILogger<OrderItemsRepo> _logger;
@@ -24,7 +19,7 @@ namespace PizzeriaApi.Data.Repository
 
         public async Task<bool> AddManyOrderItemAsync(IEnumerable<OrderItem> items)
         {
-          
+
 
             if (!items.Any())
 
@@ -39,7 +34,7 @@ namespace PizzeriaApi.Data.Repository
             {
                 var disIds = items.Select(i => i.DishId).Distinct().ToList(); //distinct letar efter unika endast.
 
-                var dishesToAdd = await _dbContext.Dishes.Where(d =>disIds.Contains(d.Id)).ToListAsync();
+                var dishesToAdd = await _dbContext.Dishes.Where(d => disIds.Contains(d.Id)).ToListAsync();
 
                 if (dishesToAdd.Count != disIds.Count)
                 {
@@ -133,14 +128,73 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public Task<bool> DeleteOrderItemAsync(int orderItemId)
+        public async Task<bool> DeleteOrderItemAsync(int orderItemId)
         {
-            throw new NotImplementedException();
+
+            if (orderItemId <= 0)
+            {
+                _logger.LogWarning("DeleteOrderItemAsync: orderItemId invalid");
+                return false;
+            }
+
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+
+
+                var orderItem = await _dbContext.OrderItems
+                                                .Include(oi => oi.Dish)
+                                                .FirstOrDefaultAsync(oi => oi.Id == orderItemId);
+
+                if (orderItem == null)
+                {
+                    _logger.LogDebug("DeleteOrderItemAsync: No order item found");
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                var order = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderItem.OrderId);
+                if (order == null)
+                {
+                    _logger.LogWarning("DeleteOrderItemAsync: Associated order not found for order item ID {OrderItemId}", orderItemId);
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                var itemPrice = orderItem.Quantity * orderItem.Dish.Price;
+                order.TotalPrice -= itemPrice;
+
+                if (order.TotalPrice < 0)
+                {
+                    order.TotalPrice = 0;
+                }
+
+                _dbContext.OrderItems.Remove(orderItem);
+                var affected = await _dbContext.SaveChangesAsync();
+
+                if(affected <= 0)
+                {
+                    _logger.LogWarning("DeleteOrderItemAsync: No order item deleted");
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error: DeleteOrderItemAsync failed");
+                return false;
+            }
         }
 
         public async Task<OrderItem?> GetItemsByIdAsync(int orderItemsId)
         {
-            if(orderItemsId <= 0)
+
+            if (orderItemsId <= 0)
             {
                 _logger.LogWarning("GetItemsByIdAsync: orderItemsId invalid");
                 return null;
@@ -158,16 +212,17 @@ namespace PizzeriaApi.Data.Repository
 
                 return orderItem;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error: GetItemsByIdAsync failed");
                 return null;
             }
+
         }
 
         public async Task<IEnumerable<OrderItem>> GetOrderItemsByorderIdAsync(int orderId)
         {
-            if( orderId <= 0)
+            if (orderId <= 0)
             {
                 _logger.LogWarning("GetOrderItemsByorderIdAsync: orderId invalid");
                 return null;
@@ -177,7 +232,7 @@ namespace PizzeriaApi.Data.Repository
             {
                 var orderItems = await _dbContext.OrderItems.Where(oi => oi.OrderId == orderId)
                                                                 .ToListAsync();
-                if(!orderItems.Any())
+                if (!orderItems.Any())
                 {
                     _logger.LogDebug(" GetOrderItemsByorderIdAsync: No orderItems found");
                     return null;
@@ -185,7 +240,7 @@ namespace PizzeriaApi.Data.Repository
 
                 return orderItems;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error: GetOrderItemsByorderIdAsync failed");
                 return null;
@@ -223,13 +278,13 @@ namespace PizzeriaApi.Data.Repository
                     return false;
                 }
 
-      
+
                 var oldTotal = existingItem.Quantity * existingItem.Dish.Price;
                 var newTotal = orderItem.Quantity * existingItem.Dish.Price;
 
                 order.TotalPrice += (newTotal - oldTotal);
 
-           
+
                 existingItem.Quantity = orderItem.Quantity;
 
                 await _dbContext.SaveChangesAsync();
