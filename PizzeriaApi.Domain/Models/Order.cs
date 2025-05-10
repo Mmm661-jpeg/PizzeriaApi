@@ -17,7 +17,9 @@ namespace PizzeriaApi.Domain.Models
 
         [Required]
         public string UserId { get; set; } = null!;
-        public PizzeriaUser? User { get; set; }
+
+        [ForeignKey("UserId")]
+        public PizzeriaUser User { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -29,6 +31,12 @@ namespace PizzeriaApi.Domain.Models
         public OrderStatus Status { get; set; } = OrderStatus.Pending; 
 
         public bool UsedBonusReward { get; set; } = false;
+
+        public DateTime? CancelledAt { get; set; }
+
+        [StringLength(100)]
+        public string? CancellationReason { get; set; }
+        public DateTime? FinalizedAt { get; set; }
 
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
