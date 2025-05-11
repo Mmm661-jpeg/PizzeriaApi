@@ -22,9 +22,34 @@ namespace PizzeriaApi.Data.Repository
             _logger = logger;
         }
 
-        public Task<bool> AddDishIngredientAsync(DishIngredient dishIngredient)
+        public async Task<bool> AddDishIngredientAsync(DishIngredient dishIngredient)
         {
-            throw new NotImplementedException();
+            if(dishIngredient == null)
+            {
+                _logger.LogWarning("AddDishIngredientAsync: dishIngredient is null.");
+                return false;
+            }
+
+            try
+            {
+                var existingDishIngredient = await _dbContext.DishIngredients
+                    .AnyAsync(di => di.DishId == dishIngredient.DishId && di.IngredientId == dishIngredient.IngredientId);
+
+                if (existingDishIngredient)
+                {
+                    _logger.LogInformation("AddDishIngredientAsync: DishIngredient with DishId {DishId} and IngredientId {IngredientId} already exists.", dishIngredient.DishId, dishIngredient.IngredientId);
+                    return false;
+                }
+
+                await _dbContext.DishIngredients.AddAsync(dishIngredient);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error: AddDishIngredientAsync failed for DishId {DishId} and IngredientId {IngredientId}",dishIngredient.DishId, dishIngredient.IngredientId);
+                return false;
+            }
         }
 
         public Task<bool> AddDishIngredientsAsync(IEnumerable<DishIngredient> ingredients)

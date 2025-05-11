@@ -142,6 +142,7 @@ namespace PizzeriaApi.Data.DataModels
                     entity.ToTable("DishIngredients");
 
                     entity.HasKey(di => new { di.DishId, di.IngredientId });
+                            
 
                     entity.Property(di => di.Quantity)
                             .HasColumnType("decimal(18,3)")  
@@ -151,7 +152,6 @@ namespace PizzeriaApi.Data.DataModels
                          .HasConversion<string>()
                          .HasMaxLength(20);
 
-                  
 
 
 
