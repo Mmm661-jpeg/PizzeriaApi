@@ -148,9 +148,38 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public Task<bool> DeleteIngredientAsync(int dishIngredient)
+        public async Task<bool> DeleteIngredientAsync(int dishId, int ingredientId)
         {
-            throw new NotImplementedException();
+
+            if (dishId <= 0 || ingredientId <= 0)
+            {
+                _logger.LogWarning("DeleteIngredientAsync: Invalid DishId {DishId} or IngredientId {IngredientId}", dishId, ingredientId);
+                return false;
+            }
+
+            try
+            {
+                var dishIngredient = await _dbContext.DishIngredients
+                                            .FirstOrDefaultAsync(di => di.DishId == dishId && di.IngredientId == ingredientId);
+
+                if (dishIngredient == null)
+                {
+                    _logger.LogDebug("DeleteIngredientAsync: DishIngredient not found for DishId {DishId} and IngredientId {IngredientId}", dishId, ingredientId);
+                    return false;
+                }
+
+                _dbContext.DishIngredients.Remove(dishIngredient);
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error: DeleteIngredientAsync failed for DishId {DishId} and IngredientId {IngredientId}", dishId, ingredientId);
+                return false;
+            }
         }
 
         public async Task<bool> DishHasIngredientAsync(int dishId, int ingredientId)
@@ -343,11 +372,7 @@ namespace PizzeriaApi.Data.Repository
                     .Select(di => di.Quantity)
                     .FirstOrDefaultAsync();
 
-                if (quantity == 0)
-                {
-                    _logger.LogDebug("GetIngredientQuantityForDishAsync: No quantity found for DishId {DishId} and IngredientId {IngredientId}", dishId, ingredientId);
-                }
-
+              
                 return quantity;
             }
 
@@ -427,9 +452,39 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public Task<bool> UpdateDishIngredientAsync(DishIngredient dishIngredient)
+        public async Task<bool> UpdateDishIngredientAsync(DishIngredient dishIngredient)
         {
-            throw new NotImplementedException();
+            if (dishIngredient == null || dishIngredient.DishId <= 0 || dishIngredient.IngredientId <= 0)
+            {
+                _logger.LogWarning("UpdateDishIngredientAsync: Invalid input.");
+                return false;
+            }
+
+            try
+            {
+                var existing = await _dbContext.DishIngredients
+                    .FirstOrDefaultAsync(di => di.DishId == dishIngredient.DishId && di.IngredientId == dishIngredient.IngredientId);
+
+                if (existing == null)
+                {
+                    _logger.LogWarning("UpdateDishIngredientAsync: DishIngredient not found for DishId {DishId} and IngredientId {IngredientId}",
+                        dishIngredient.DishId, dishIngredient.IngredientId);
+                    return false;
+                }
+
+                existing.Quantity = dishIngredient.Quantity;
+                existing.Unit = dishIngredient.Unit;
+
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error: UpdateDishIngredientAsync failed for DishId {DishId} and IngredientId {IngredientId}",
+                    dishIngredient.DishId, dishIngredient.IngredientId);
+                return false;
+            }
         }
     }
 }
