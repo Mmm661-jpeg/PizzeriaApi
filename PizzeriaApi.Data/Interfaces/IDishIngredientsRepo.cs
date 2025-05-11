@@ -13,7 +13,7 @@ namespace PizzeriaApi.Data.Interfaces
         Task<bool> AddDishIngredientAsync(DishIngredient dishIngredient);
 
         Task<bool> AddDishIngredientsAsync(IEnumerable<DishIngredient> ingredients);
-        Task<bool> DeleteIngredientAsync(int dishIngredient);
+        Task<bool> DeleteIngredientAsync(int dishId,int ingredientId);
 
         Task<bool> UpdateDishIngredientAsync(DishIngredient dishIngredient);
 
