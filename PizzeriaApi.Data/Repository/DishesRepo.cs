@@ -40,14 +40,36 @@ namespace PizzeriaApi.Data.Repository
                 return false;
             }
 
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             try
             {
+                var incomingIngredientsIds = dish.DishIngredients.Select(i => i.IngredientId).Distinct();
+                var existingIngredients = await _dbContext.Ingredients.Where(i => incomingIngredientsIds.Contains(i.Id)).ToListAsync();
+
+                if (existingIngredients.Count != incomingIngredientsIds.Count())
+                {
+                    _logger.LogWarning("AddDishAsync: Some ingredients do not exist in the database.");
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                var quantities = dish.DishIngredients.Select(i => i.Quantity);
+
+                if(quantities.Any(q => q <= 0))
+                {
+                    _logger.LogWarning("AddDishAsync: Some quantities are invalid.");
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
                 await _dbContext.AddAsync(dish);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch(Exception ex)
             {
+                await transaction.RollbackAsync();
                 _logger.LogError(ex, "Error: AddDishAsync failed");
                 return false;
             }
