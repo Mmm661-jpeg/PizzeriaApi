@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PizzeriaApi.Data.DataModels;
 
@@ -11,9 +12,11 @@ using PizzeriaApi.Data.DataModels;
 namespace PizzeriaApi.Data.Migrations
 {
     [DbContext(typeof(PizzeriaApiDBContext))]
-    partial class PizzeriaApiDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250511053841_SeedCategory")]
+    partial class SeedCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,16 +216,6 @@ namespace PizzeriaApi.Data.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Dishes", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            Description = "Placeholder for removed dishes",
-                            Name = "Deleted Dish",
-                            Price = 0m
-                        });
                 });
 
             modelBuilder.Entity("PizzeriaApi.Domain.Models.DishIngredient", b =>

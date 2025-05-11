@@ -75,9 +75,97 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public Task<bool> DeleteDishAsync(Dish dish)
+        public async Task<bool> DeleteDishAsync(int dishId)
         {
-            throw new NotImplementedException();
+            const int deletedDishId = 1; //Id for "Deleted" dishes
+
+            if(dishId <= 0)
+            {
+                _logger.LogWarning("DeleteDishAsync: DishId: {DishId} invalid", dishId);
+                return false;
+            }
+
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+
+            try
+            {
+
+                var dishExists = await _dbContext.Dishes.AnyAsync(d => d.Id == dishId);
+                if (!dishExists)
+                {
+                    _logger.LogWarning("DeleteDishAsync: Dish with id {DishId} does not exist.", dishId);
+                    return false;
+                }
+
+                var pendingOrderItems = await _dbContext.OrderItems
+                   .Where(oi => oi.DishId == dishId && oi.Order.Status == OrderStatus.Pending) 
+                   .ToListAsync();
+
+                if (pendingOrderItems.Any())
+                {
+                    _logger.LogInformation("DeleteDishAsync: Deleting pending orders for dishId {DishId}", dishId);
+
+                    foreach (var item in pendingOrderItems)
+                    {
+                        var orderToUpdate = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == item.OrderId);
+
+                        if(orderToUpdate != null)
+                        {
+                            orderToUpdate.TotalPrice -= item.Quantity * item.Dish.Price;
+                        }
+                    }
+
+                    _dbContext.Orders.UpdateRange(pendingOrderItems.Select(oi => oi.Order));
+                    
+                    _dbContext.OrderItems.RemoveRange(pendingOrderItems);
+                }
+
+                var orderItemsToUpdate = await _dbContext.OrderItems
+                   .Where(oi => oi.DishId == dishId && oi.Order.Status != OrderStatus.Pending) 
+                   .ToListAsync();
+
+                if (orderItemsToUpdate.Any())
+                {
+                    foreach (var item in orderItemsToUpdate)
+                    {
+                        item.DishId = deletedDishId; 
+                    }
+                }
+
+                var deletedDishIngredients = await _dbContext.DishIngredients
+                    .Where(di => di.DishId == dishId)
+                    .ExecuteDeleteAsync();
+
+                if(deletedDishIngredients == 0)
+                {
+                    _logger.LogWarning("DeleteDishAsync: No dish ingredients deleted for dishId: {DishId}", dishId);
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                var deletedDish = await _dbContext.Dishes
+                    .Where(d => d.Id == dishId)
+                    .ExecuteDeleteAsync();
+
+                if (deletedDish == 0)
+                {
+                    _logger.LogWarning("DeleteDishAsync: No dish deleted for dishId: {DishId}", dishId);
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error: DeleteDishAsync failed");
+                return false;
+            }
         }
 
         public async Task<IEnumerable<Dish>> GetAllDishesAsync()

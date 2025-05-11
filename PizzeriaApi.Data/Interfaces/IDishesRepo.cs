@@ -23,7 +23,7 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<bool> UpdateDishAsync(Dish dish);
 
-        Task<bool> DeleteDishAsync(Dish dish);
+        Task<bool> DeleteDishAsync(int dishId);
 
         //service: OrderByprice,OrderByDate,FilterOutPrice
     }
