@@ -1,4 +1,5 @@
 ﻿using PizzeriaApi.Domain.Models;
+using PizzeriaApi.Domain.UtilModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,18 +25,19 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<IEnumerable<Ingredient>> GetIngredientsByDIshIdAsync(int dishId);
 
-        Task<decimal> GetIngredientQuantityForDishAsync(int dishId, int ingredientId);
+        Task<decimal?> GetIngredientQuantityForDishAsync(int dishId, int ingredientId);
 
-        Task<decimal> CalculateEventuallIngredientCostAsync(int ingredientId, decimal quantity);
+        Task<decimal?> CalculateEventuallIngredientCostAsync(int ingredientId, decimal quantity);
 
-        Task<decimal> CalculateIngredientCostForDishAsync(int ingredientId, int dishId);
 
-        Task<decimal> CalculateCostForDishAsync(int dishId);
+        Task<decimal?> CalculateCostForDishAsync(int dishId);
 
-        Task<decimal> GetRecommendedPriceForDishAsync(int dishId);
+        Task<decimal?> GetRecommendedPriceForDishAsync(int dishId);
 
-        Task<int> EvaluateCurrentPriceForDishAsync(int dishId);
+        Task<UtilEnums.DishPriceEvaluation?> EvaluateCurrentPriceForDishAsync(int dishId);
 
         Task<bool> DishHasIngredientAsync(int dishId, int ingredientId);
+
+        public Task<bool> DishHasIngredientByNameAsync(int dishId, string ingredientName);
     }
 }
