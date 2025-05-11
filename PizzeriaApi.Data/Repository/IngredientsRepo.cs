@@ -46,18 +46,46 @@ namespace PizzeriaApi.Data.Repository
 
         public async Task<bool> DeleteIngredientAsync(int ingredientId)
         {
+          
             if (ingredientId <= 0)
             {
                 _logger.LogDebug("DeleteIngredientAsync: ingredientId: {IngredientId} invalid", ingredientId);
                 return false;
             }
 
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             try
             {
-                throw new NotImplementedException();
+                var affectedDishIngredients = await _dbContext.DishIngredients
+                    .Where(i => i.IngredientId == ingredientId)
+                    .ExecuteDeleteAsync();
+
+                if (affectedDishIngredients == 0)
+                {
+                    _logger.LogDebug("DeleteIngredientAsync: No dish ingredients deleted with ingredientId: {IngredientId}", ingredientId);
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                var AffectedIngredient = await _dbContext.Ingredients
+                    .Where(i => i.Id == ingredientId)
+                    .ExecuteDeleteAsync();
+
+                if (AffectedIngredient == 0)
+                {
+                    _logger.LogDebug("DeleteIngredientAsync: No ingredient deleted with ingredientId: {IngredientId}", ingredientId);
+                    await transaction.RollbackAsync();
+                    return false;
+
+                }
+
+                await transaction.CommitAsync();
+                return true;
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 _logger.LogError(ex, "Error: DeleteIngredientAsync failed");
                 return false;
             }

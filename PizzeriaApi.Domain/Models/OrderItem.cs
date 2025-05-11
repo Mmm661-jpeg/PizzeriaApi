@@ -18,7 +18,7 @@ namespace PizzeriaApi.Domain.Models
 
 
         [ForeignKey("OrderId")]
-        public Order? Order { get; set; }
+        public Order Order { get; set; } = null!;
 
         [Required]
         public int DishId { get; set; }

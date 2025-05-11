@@ -78,8 +78,16 @@ namespace PizzeriaApi.Data.DataModels
                 entity.Property(d => d.Price)
                     .HasColumnType("decimal(18,2)");
 
+                entity.HasData(new Dish
+                {
+                    Id = 1,
+                    Name = "Deleted Dish",
+                    Price = 0,
+                    Description = "Placeholder for removed dishes",
+                    CategoryId = 1  
+                });
 
-               
+
 
                 entity.HasOne(d => d.Category)
                     .WithMany(c => c.Dishes)
@@ -97,9 +105,15 @@ namespace PizzeriaApi.Data.DataModels
                     .IsRequired()
                     .HasMaxLength(50);
 
+                entity.HasData(new Category
+                {
+                    Id = 1,
+                    Name = "Other"
+                });
 
 
-               
+
+
 
                 entity.HasIndex(c => c.Name).IsUnique();
 

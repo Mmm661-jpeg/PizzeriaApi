@@ -22,6 +22,79 @@ namespace PizzeriaApi.Data.Repository
             _logger = logger;
         }
 
-        
+        public Task<bool> AddDishIngredientAsync(DishIngredient dishIngredient)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> AddDishIngredientsAsync(IEnumerable<DishIngredient> ingredients)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> CalculateCostForDishAsync(int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> CalculateEventuallIngredientCostAsync(int ingredientId, decimal quantity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> CalculateIngredientCostForDishAsync(int ingredientId, int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteIngredientAsync(int dishIngredient)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DishHasIngredientAsync(int dishId, int ingredientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> EvaluateCurrentPriceForDishAsync(int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Dish>> GetDishesByIngredientIdAsync(int ingredientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DishIngredient?> GetDishIngredientAsync(int dishId, int ingredientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<DishIngredient>> GetDishIngredientsAsyncWithDishId(int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetIngredientQuantityForDishAsync(int dishId, int ingredientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<Ingredient>> GetIngredientsByDIshIdAsync(int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetRecommendedPriceForDishAsync(int dishId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateDishIngredientAsync(DishIngredient dishIngredient)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
