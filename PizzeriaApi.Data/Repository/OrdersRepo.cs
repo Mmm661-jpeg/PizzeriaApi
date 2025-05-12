@@ -11,6 +11,8 @@ namespace PizzeriaApi.Data.Repository
         private readonly PizzeriaApiDBContext _dbContext;
         private readonly ILogger<OrdersRepo> _logger;
 
+        const int minBonusPoints = 100; //minimum bonus required to use bonus points
+
         public OrdersRepo(PizzeriaApiDBContext dbContext, ILogger<OrdersRepo> logger)
         {
             _dbContext = dbContext;
@@ -53,7 +55,7 @@ namespace PizzeriaApi.Data.Repository
 
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
-            if(orderId <= 0)
+            if (orderId <= 0)
             {
                 _logger.LogWarning("DeleteOrderAsync: OrderId invalid");
                 return false;
@@ -79,8 +81,8 @@ namespace PizzeriaApi.Data.Repository
 
                 return true;
             }
-       
-            catch(Exception ex)
+
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error: DeleteOrderAsync failed");
                 return false;
@@ -176,15 +178,27 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersByStatusAsync(OrderStatus status)
+        public async Task<IEnumerable<Order>> GetOrdersByStatusAsync(string status)
         {
+            if(string.IsNullOrEmpty(status))
+            {
+                _logger.LogWarning("GetOrdersByStatusAsync: Status invalid");
+                return null;
+            }
+           
             try
             {
+                if (Enum.TryParse<OrderStatus>(status, true, out var orderStatus) == false)
+                {
+                    _logger.LogWarning("GetOrdersByStatusAsync: Status invalid");
+                    return null;
+                }
+
                 var orders = await _dbContext.Orders
-                    .Where(o => o.Status == status)
+                    .Where(o => o.Status == orderStatus)
                     .ToListAsync();
 
-                if(!orders.Any())
+                if (!orders.Any())
                 {
                     _logger.LogDebug("GetOrdersByStatusAsync: No orders found with status: {Status}", status);
                     return null;
@@ -192,7 +206,7 @@ namespace PizzeriaApi.Data.Repository
 
                 return orders;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error: GetOrdersByStatusAsync failed");
                 return null;
@@ -226,29 +240,128 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<bool> UpdateOrderAsync(Order order) //Status
+        public async Task<bool> SetOrderPaid(int orderId, string userId, decimal amountPaid, bool useBonus = false)
         {
-            if (order == null)
+            if (orderId <= 0)
             {
-                _logger.LogWarning("UpdateOrderAsync: Order input is null or empty.");
+                _logger.LogWarning("SetOrderPaid: OrderId invalid");
                 return false;
             }
 
-            if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Cancelled)
+            if (string.IsNullOrEmpty(userId))
             {
-                _logger.LogWarning("UpdateOrderAsync: Order status is invalid.");
+                _logger.LogWarning("SetOrderPaid: UserId invalid");
+                return false;
+            }
+
+            if (amountPaid <= 0)
+            {
+                _logger.LogWarning("SetOrderPaid: AmountPaid invalid");
                 return false;
             }
 
             try
             {
-                var affected = await _dbContext.Orders.Where(o => o.Id == order.Id)
+                var order = await _dbContext.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+                if (order == null)
+                {
+                    _logger.LogWarning("SetOrderPaid: No order found with id: {OrderId}", orderId);
+                    return false;
+
+                }
+
+
+
+                bool isPremiumUser = await _dbContext.UserRoles
+                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId.Equals("PremiumUser", StringComparison.OrdinalIgnoreCase));
+
+                if (Enum.TryParse<OrderStatus>(order.Status.ToString(), out var status))
+                {
+                    if (status != OrderStatus.Pending)
+                    {
+                        _logger.LogWarning("SetOrderPaid: Order with id: {OrderId} is not in pending status.", orderId);
+                        return false;
+                    }
+                }
+
+                bool threePizzas = order.Items.Count(i => i.Dish.Category.Name.Equals("Pizza", StringComparison.OrdinalIgnoreCase)) >= 3;
+
+
+                if (isPremiumUser)
+                {
+                    if (useBonus && order.User.BonusPoints > minBonusPoints)
+                    {
+                        order.UsedBonusReward = true;
+                        order.User.BonusPoints = 0;
+                    }
+                    else
+                    {
+                        order.UsedBonusReward = false;
+                        order.User.BonusPoints += 10;
+                    }
+
+
+                    if (threePizzas)
+                    {
+                        order.TotalPrice = Math.Max(0, order.TotalPrice - (order.TotalPrice * 0.2m)); //20% discount
+                    }
+
+
+
+                }
+
+
+                order.FinalizedAt = DateTime.UtcNow;
+                order.Status = OrderStatus.Paid;
+
+                await _dbContext.SaveChangesAsync();
+                return true;
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error: SetOrderPaid failed");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateOrderStatusAsync(int orderId,string status) //Status
+        {
+            if(string.IsNullOrEmpty(status))
+            {
+                _logger.LogWarning("UpdateOrderAsync: Status invalid");
+                return false;
+            }
+
+            try
+            {
+                if(Enum.TryParse<OrderStatus>(status,true,out var newOrderStatus) == false)
+                {
+                    _logger.LogWarning("UpdateOrderAsync: Status invalid");
+                    return false;
+                }
+
+                if(newOrderStatus != OrderStatus.Paid && newOrderStatus != OrderStatus.Delivered)
+                {
+                    // Only allows updating an order to Paid or Deliver
+                    _logger.LogWarning("UpdateOrderAsync: Status invalid");
+                    return false;
+                }
+
+                var affected = await _dbContext.Orders.Where(o => o.Id == orderId)
                                          .ExecuteUpdateAsync(setter =>
-                                        setter.SetProperty(o => o.Status, order.Status));
+                                        setter.SetProperty(o => o.Status, newOrderStatus));
 
                 if (affected == 0)
                 {
-                    _logger.LogDebug("UpdateOrderAsync: Updating order with id: {OrderId} failed", order.Id);
+                    _logger.LogDebug("UpdateOrderAsync: Updating order with id: {OrderId} failed", orderId);
                     return false;
                 }
 

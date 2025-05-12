@@ -11,6 +11,8 @@ namespace PizzeriaApi.Data.Repository
         private readonly PizzeriaApiDBContext _dbContext;
         private readonly ILogger<PizzeriaUserRepo> _logger;
 
+        const int minBonusPoints = 100; //minimum bonus required to use bonus points
+
         public PizzeriaUserRepo(PizzeriaApiDBContext context, ILogger<PizzeriaUserRepo> logger)
         {
             _dbContext = context;
@@ -272,7 +274,7 @@ namespace PizzeriaApi.Data.Repository
 
         public async Task<bool> UsercanUseBonus(string userId) //bonus points can be used only if the user has at least one order with status pending adn above 100 points.
         {
-            const int minBonusPoints = 100; //minimum bonus required to use bonus points
+           
 
             if (string.IsNullOrEmpty(userId))
             {

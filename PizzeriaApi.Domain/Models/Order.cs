@@ -45,7 +45,7 @@ namespace PizzeriaApi.Domain.Models
     {
         Pending = 1,
         Paid = 2,
-        Deliver = 3,
+        Delivered = 3,
         Cancelled = 4,
     }
 }
