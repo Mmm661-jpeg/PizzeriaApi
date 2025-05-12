@@ -18,19 +18,23 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<IEnumerable<Order>> GetOrdersByDateAsync(DateTime? to, DateTime? from);
 
-        Task<IEnumerable<Order>> GetOrdersByStatusAsync(OrderStatus status);
+        Task<IEnumerable<Order>> GetOrdersByStatusAsync(string status);
 
         Task<IEnumerable<Order>> GetOrdersUsingBonusAsync();
 
         Task<bool> CreateOrderAsync(Order order);
 
-        Task<bool> UpdateOrderAsync(Order order);
+        Task<bool> UpdateOrderStatusAsync(int orderId,string status);
 
         Task<bool> DeleteOrderAsync(int orderId);
 
         Task<bool> CancelOrderAsync(int orderId, string userId,string? reason);
 
         Task<Order?> GetPendingOrderForUserAsync(string userId);
+
+        Task<bool> SetOrderPaid(int orderId, string userId, decimal amountPaid,bool useBonus=false);
+
+
 
 
 
