@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.Models;
+using PizzeriaApi.Domain.UtilModels;
+using static PizzeriaApi.Domain.UtilModels.UtilEnums;
 
 namespace PizzeriaApi.Data.Repository
 {
@@ -277,7 +279,7 @@ namespace PizzeriaApi.Data.Repository
 
 
                 bool isPremiumUser = await _dbContext.UserRoles
-                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId.Equals("PremiumUser", StringComparison.OrdinalIgnoreCase));
+                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId.Equals(UserRoles.PremiumUser.ToString()));
 
                 if (Enum.TryParse<OrderStatus>(order.Status.ToString(), out var status))
                 {
