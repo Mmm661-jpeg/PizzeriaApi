@@ -14,6 +14,12 @@ namespace PizzeriaApi.Domain.UtilModels
             JustRight = 2,
             TooHigh = 3
         }
+
+        public enum UserRoles //update too this in repos also;
+        {
+            RegularUser = 1,
+            PremiumUser = 2
+        }
     }
 
    

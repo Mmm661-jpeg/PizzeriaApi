@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.Models;
+using static PizzeriaApi.Domain.UtilModels.UtilEnums;
 
 namespace PizzeriaApi.Data.Repository
 {
@@ -57,7 +58,7 @@ namespace PizzeriaApi.Data.Repository
             try
             {
                 var premiumUsersIds = await _dbContext.UserRoles
-                    .Where(ur => ur.RoleId == "PremiumUser")
+                    .Where(ur => ur.RoleId == UserRoles.PremiumUser.ToString())
                     .Select(ur => ur.UserId)
                     .ToListAsync();
 
@@ -78,7 +79,7 @@ namespace PizzeriaApi.Data.Repository
             try
             {
                 var regularUsersIds = _dbContext.UserRoles
-                    .Where(ur => ur.RoleId == "RegularUser")
+                    .Where(ur => ur.RoleId == UserRoles.RegularUser.ToString())
                     .Select(ur => ur.UserId)
                     .ToList();
 
@@ -272,7 +273,7 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<bool> UsercanUseBonus(string userId) //bonus points can be used only if the user has at least one order with status pending adn above 100 points.
+        public async Task<bool> UsercanUseBonus(string userId) 
         {
            
 
@@ -284,6 +285,19 @@ namespace PizzeriaApi.Data.Repository
 
             try
             {
+                var premiumUsersIds = await _dbContext.UserRoles
+                   .Where(ur => ur.RoleId == UserRoles.PremiumUser.ToString())
+                   .Select(ur => ur.UserId)
+                   .ToListAsync();
+
+                bool isPremiumUser = premiumUsersIds.Contains(userId);
+
+                if(!isPremiumUser)
+                {
+                    _logger.LogWarning("User with ID {UserId} is not a premium user", userId);
+                    return false;
+                }
+
                 var user = await _dbContext.Users
                     .Include(u => u.Orders)
                     .FirstOrDefaultAsync(u => u.Id == userId);

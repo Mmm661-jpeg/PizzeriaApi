@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Domain.Models;
+using PizzeriaApi.Domain.UtilModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,13 @@ builder.Services.AddDefaultIdentity<PizzeriaUser>(options =>
     options.SignIn.RequireConfirmedAccount = false; // Customize as needed
 })
 .AddEntityFrameworkStores<PizzeriaApiDBContext>();
+
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+var jwtSettingsRaw = builder.Configuration.GetSection("JwtSettings");
+
+//Add our Auth Extension later..
 
 
 builder.Services.AddControllers();
