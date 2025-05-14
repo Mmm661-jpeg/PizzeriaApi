@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.Models;
+using PizzeriaApi.Domain.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,23 +133,23 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<bool> UpdateCategory(string categoryName)
+        public async Task<bool> UpdateCategory(Category category)
         {
-            if (string.IsNullOrEmpty(categoryName))
+            if (string.IsNullOrEmpty(category.Name))
             {
-                _logger.LogWarning("UpdateCategoryAsync: Category name invalid: {CategoryName}", categoryName);
+                _logger.LogWarning("UpdateCategoryAsync: Category name invalid: {CategoryName}", category.Name);
                 return false;
             }
 
             try
             {
-                var affectedrows = await _dbContext.Categories
-                    .Where(c => c.Name == categoryName)
-                    .ExecuteUpdateAsync(c => c.SetProperty(c => c.Name, categoryName));
+                _dbContext.Categories.Update(category);
+
+                var affectedrows = await _dbContext.SaveChangesAsync();
 
                 if (affectedrows == 0)
                 {
-                    _logger.LogDebug("UpdateCategoryAsync: Updating category with name: {CategoryName} failed", categoryName);
+                    _logger.LogDebug("UpdateCategoryAsync: Updating category with name: {CategoryName} failed", category.Name);
                     return false;
                 }
 
@@ -157,6 +158,27 @@ namespace PizzeriaApi.Data.Repository
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error: UpdateCategoryAsync failed");
+                return false;
+            }
+        }
+
+        public async Task<bool> CategoryNameExistsAsync(string categoryName)
+        {
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                _logger.LogWarning("CategoryNameExistsAsync: Category name invalid: {CategoryName}", categoryName);
+                return false;
+            }
+
+            try
+            {
+
+                var exists = await _dbContext.Categories.AnyAsync(c => c.Name == categoryName);
+                return exists;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error: CategoryNameExistsAsync failed");
                 return false;
             }
         }

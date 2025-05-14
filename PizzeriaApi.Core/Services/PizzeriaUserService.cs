@@ -4,7 +4,7 @@ using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.DTO_s;
 using PizzeriaApi.Domain.Models;
-using PizzeriaApi.Domain.RequestModels;
+using PizzeriaApi.Domain.RequestModels.PizzeriaUserReq;
 using PizzeriaApi.Domain.UtilModels;
 using static PizzeriaApi.Domain.UtilModels.UtilEnums;
 
@@ -361,9 +361,9 @@ namespace PizzeriaApi.Core.Services
 
                 var newUser = new PizzeriaUser
                 {
-                    UserName = registerUserReq.UserName,
-                    Email = registerUserReq.Email,
-                    PhoneNumber = registerUserReq.PhoneNumber
+                    UserName = registerUserReq.UserName.Trim(),
+                    Email = registerUserReq.Email.Trim(),
+                    PhoneNumber = registerUserReq.PhoneNumber.Trim()
                 };
 
                 var result = await _userManager.CreateAsync(newUser, registerUserReq.Password);
@@ -425,23 +425,23 @@ namespace PizzeriaApi.Core.Services
 
                 if (!string.IsNullOrEmpty(updateUserReq.UserName))
                 {
-                    user.UserName = updateUserReq.UserName;
+                    user.UserName = updateUserReq.UserName.Trim();
                 }
 
                 if (!string.IsNullOrEmpty(updateUserReq.Email))
                 {
-                    user.Email = updateUserReq.Email;
+                    user.Email = updateUserReq.Email.Trim();
                 }
 
                 if (!string.IsNullOrEmpty(updateUserReq.PhoneNumber))
                 {
-                    user.PhoneNumber = updateUserReq.PhoneNumber;
+                    user.PhoneNumber = updateUserReq.PhoneNumber.Trim();
                 }
 
                 if (!string.IsNullOrEmpty(updateUserReq.Password))
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    var resetResult = await _userManager.ResetPasswordAsync(user, token, updateUserReq.Password);
+                    var resetResult = await _userManager.ResetPasswordAsync(user, token, updateUserReq.Password.Trim());
 
                     if (!resetResult.Succeeded)
                     {
@@ -549,18 +549,34 @@ namespace PizzeriaApi.Core.Services
 
         private PizzeriaUserDTO MapOneUser(PizzeriaUser user, bool withId = false)
         {
-            return new PizzeriaUserDTO
+            try
             {
-                UserId = withId ? user.Id : null,
-                UserName = user.UserName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber
-            };
+                return new PizzeriaUserDTO
+                {
+                    UserId = withId ? user.Id : null,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                };
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error mapping user to DTO");
+                throw;
+            }
         }
 
         private IEnumerable<PizzeriaUserDTO> MapManyUsers(IEnumerable<PizzeriaUser> users, bool withId = false)
         {
-            return users.Select(user => MapOneUser(user, withId));
+            try
+            {
+                return users.Select(user => MapOneUser(user, withId));
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error mapping users to DTOs");
+                throw;
+            }
 
         }
     }

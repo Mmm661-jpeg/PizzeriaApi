@@ -296,7 +296,7 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<bool> UpdateDishAsync(Dish dish) // inte hela modellen utan endast updaterade fät eller dto.
+        public async Task<bool> UpdateDishAsync(Dish dish) 
         {
             if(dish == null)
             {
@@ -307,6 +307,27 @@ namespace PizzeriaApi.Data.Repository
 
             try
             {
+
+                bool categoryExists = await _dbContext.Categories
+                                            .AnyAsync(c => c.Id == dish.CategoryId);
+
+                if (!categoryExists)
+                {
+                    _logger.LogWarning("UpdateDishAsync: Category with ID {CategoryId} does not exist", dish.CategoryId);
+                    return false;
+                }
+
+                bool nameExists = await _dbContext.Dishes
+                                    .AnyAsync(d => d.Name == dish.Name && d.Id != dish.Id);
+
+                if (nameExists)
+                {
+                    _logger.LogWarning("UpdateDishAsync: Dish name '{DishName}' already exists", dish.Name);
+                    return false;
+                }
+
+
+
                 var affected = await _dbContext.Dishes.Where(d => d.Id == dish.Id)
                                       .ExecuteUpdateAsync(setter =>
                                         setter

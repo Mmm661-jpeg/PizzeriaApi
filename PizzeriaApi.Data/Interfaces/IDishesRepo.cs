@@ -25,6 +25,6 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<bool> DeleteDishAsync(int dishId);
 
-        //service: OrderByprice,OrderByDate,FilterOutPrice
+     
     }
 }

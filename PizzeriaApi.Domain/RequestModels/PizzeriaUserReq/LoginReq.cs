@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PizzeriaApi.Domain.RequestModels
+namespace PizzeriaApi.Domain.RequestModels.PizzeriaUserReq
 {
     public class LoginReq
     {
@@ -17,6 +17,6 @@ namespace PizzeriaApi.Domain.RequestModels
         [StringLength(100, ErrorMessage = "Password must be at least {2} characters long.", MinimumLength = 6)]
         public string Password { get; set; } = null!;
 
-        
+
     }
 }

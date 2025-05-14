@@ -1,6 +1,6 @@
 ﻿using PizzeriaApi.Domain.DTO_s;
 using PizzeriaApi.Domain.Models;
-using PizzeriaApi.Domain.RequestModels;
+using PizzeriaApi.Domain.RequestModels.PizzeriaUserReq;
 using PizzeriaApi.Domain.UtilModels;
 using System;
 using System.Collections.Generic;

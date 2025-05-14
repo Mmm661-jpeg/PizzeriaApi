@@ -153,7 +153,7 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<Order?> GetOrdersByOrderIdAsync(int orderId)
+        public async Task<Order?> GetOrderByOrderIdAsync(int orderId)
         {
             if (orderId <= 0)
             {
