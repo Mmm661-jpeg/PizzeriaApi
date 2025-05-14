@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PizzeriaApi.Domain.RequestModels
+namespace PizzeriaApi.Domain.RequestModels.PizzeriaUserReq
 {
     public class RegisterUserReq
     {
@@ -24,7 +24,7 @@ namespace PizzeriaApi.Domain.RequestModels
         public string Password { get; set; } = null!;
 
         [Required(ErrorMessage = "Phonenumber is required")]
-        [StringLength(15, ErrorMessage = "Phonenumber cannot be longer than 15 characters.",MinimumLength =10)]
+        [StringLength(15, ErrorMessage = "Phonenumber cannot be longer than 15 characters.", MinimumLength = 10)]
         public string PhoneNumber { get; set; } = null!;
 
 

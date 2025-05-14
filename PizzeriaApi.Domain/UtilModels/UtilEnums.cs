@@ -20,6 +20,13 @@ namespace PizzeriaApi.Domain.UtilModels
             RegularUser = 1,
             PremiumUser = 2
         }
+
+        public enum  DishesFilter
+        {
+            LowPrice = 1,
+            HighPrice = 2,
+            NoOrder = 3
+        }
     }
 
    

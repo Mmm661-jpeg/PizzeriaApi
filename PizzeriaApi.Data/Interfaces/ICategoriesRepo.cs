@@ -1,4 +1,5 @@
 ﻿using PizzeriaApi.Domain.Models;
+using PizzeriaApi.Domain.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,9 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<bool> DeleteCategoryById(int categoryId);
 
-        Task<bool> UpdateCategory(string categoryName);
+        Task<bool> UpdateCategory(Category category);
+
+        Task<bool> CategoryNameExistsAsync(string categoryName);
 
     }
 }

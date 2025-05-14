@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PizzeriaApi.Domain.RequestModels
+namespace PizzeriaApi.Domain.RequestModels.PizzeriaUserReq
 {
     public class UpdateUserReq
     {
         [Required(ErrorMessage = "UserId is required.")]
+        [StringLength(450, ErrorMessage = "UserId cannot be longer than 450 characters.")]
         public string UserId { get; set; } = null!;
 
         [StringLength(256, ErrorMessage = "Username cannot be longer than 256 characters.")]

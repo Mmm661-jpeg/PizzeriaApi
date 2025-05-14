@@ -12,7 +12,7 @@ namespace PizzeriaApi.Data.Interfaces
 
         Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
 
-        Task<Order?> GetOrdersByOrderIdAsync(int orderId);
+        Task<Order?> GetOrderByOrderIdAsync(int orderId);
 
         Task<IEnumerable<Order>> GetAllOrdersAsync();
 
