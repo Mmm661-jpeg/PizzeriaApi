@@ -31,6 +31,7 @@ namespace PizzeriaApi.Core.Services
 
             List<Claim> claims = new List<Claim>()
             {
+                new Claim(ClaimTypes.NameIdentifier,pizzeriaUser.Id),
                 new Claim("Username",pizzeriaUser.UserName),
                 new Claim("UserID",pizzeriaUser.Id),
 
