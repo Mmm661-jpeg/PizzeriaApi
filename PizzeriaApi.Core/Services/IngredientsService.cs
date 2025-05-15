@@ -157,8 +157,17 @@ namespace PizzeriaApi.Core.Services
                 }
 
 
-                ingredientToUpdate.Name = req.Name.Trim() ?? ingredientToUpdate.Name;
-                ingredientToUpdate.Price = req.Price ?? ingredientToUpdate.Price;
+               
+
+                if(!string.IsNullOrEmpty(req.Name))
+                {
+                    ingredientToUpdate.Name = req.Name.Trim();
+                }
+                if(req.Price.HasValue)
+                {
+                    ingredientToUpdate.Price = req.Price.Value;
+                }
+               
 
                 var result = await _ingredientsRepo.UpdateIngredientAsync(ingredientToUpdate);
 

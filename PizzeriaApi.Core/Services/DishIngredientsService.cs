@@ -5,15 +5,10 @@ using PizzeriaApi.Domain.DTO_s;
 using PizzeriaApi.Domain.Models;
 using PizzeriaApi.Domain.RequestModels.DishIngredientReq;
 using PizzeriaApi.Domain.UtilModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PizzeriaApi.Core.Services
 {
-    public class DishIngredientsService:IDishIngredientsService
+    public class DishIngredientsService : IDishIngredientsService
     {
         private readonly IDishIngredientsRepo _dishIngredientsRepo;
         private readonly ILogger<DishIngredientsService> _logger;
@@ -55,7 +50,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<bool?>.Failure(null, "Failed to add dish ingredient");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding dish ingredient");
                 return OperationResult<bool?>.Failure(null, "Error adding dish ingredient");
@@ -72,14 +67,14 @@ namespace PizzeriaApi.Core.Services
 
                 if (result)
                 {
-                   return OperationResult<bool?>.Success(true, "Dish ingredients added successfully");
+                    return OperationResult<bool?>.Success(true, "Dish ingredients added successfully");
                 }
                 else
                 {
                     return OperationResult<bool?>.Failure(null, "Failed to add dish ingredients");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding dish ingredients");
                 return OperationResult<bool?>.Failure(null, "Error adding dish ingredients");
@@ -101,7 +96,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<decimal?>.Failure(null, "Failed to calculate cost for dish");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating cost for dish");
                 return OperationResult<decimal?>.Failure(null, "Error calculating cost for dish");
@@ -122,7 +117,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<decimal?>.Failure(null, "Failed to calculate eventual ingredient cost");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating eventual ingredient cost");
                 return OperationResult<decimal?>.Failure(null, "Error calculating eventual ingredient cost");
@@ -144,7 +139,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<bool?>.Failure(null, "Failed to delete ingredient");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting ingredient");
                 return OperationResult<bool?>.Failure(null, "Error deleting ingredient");
@@ -166,7 +161,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<bool?>.Failure(null, "Failed to check if dish has ingredient");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking if dish has ingredient");
                 return OperationResult<bool?>.Failure(null, "Error checking if dish has ingredient");
@@ -188,7 +183,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<bool?>.Failure(null, "Failed to check if dish has ingredient by name");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking if dish has ingredient by name");
                 return OperationResult<bool?>.Failure(null, "Error checking if dish has ingredient by name");
@@ -210,7 +205,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<string?>.Failure(null, "Failed to evaluate current price for dish");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error evaluating current price for dish");
                 return OperationResult<string?>.Failure(null, "Error evaluating current price for dish");
@@ -254,7 +249,7 @@ namespace PizzeriaApi.Core.Services
 
                 return OperationResult<DishIngredientDTO?>.Success(dto, "Dish ingredient retrieved successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting dish ingredient");
                 return OperationResult<DishIngredientDTO?>.Failure(null, "Error getting dish ingredient");
@@ -279,7 +274,7 @@ namespace PizzeriaApi.Core.Services
 
                 return OperationResult<decimal?>.Success(result, "Ingredient quantity retrieved successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting ingredient quantity for dish");
                 return OperationResult<decimal?>.Failure(null, "Error getting ingredient quantity for dish");
@@ -321,7 +316,7 @@ namespace PizzeriaApi.Core.Services
 
                 return OperationResult<decimal?>.Success(result, "Recommended price retrieved successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting recommended price for dish");
                 return OperationResult<decimal?>.Failure(null, "Error getting recommended price for dish");
@@ -333,20 +328,33 @@ namespace PizzeriaApi.Core.Services
             try
             {
                 var existingIngredient = await _dishIngredientsRepo.GetDishIngredientAsync(req.DishId, req.IngredientId);
-                var isValidUnit = Enum.TryParse<Unit>(req.IngredientUnit, true, out var parsedUnit);
-
-                if (!isValidUnit)
-                {
-                    return OperationResult<bool?>.Failure(null, "Invalid ingredient unit");
-                }
 
                 if (existingIngredient == null)
                 {
                     return OperationResult<bool?>.Failure(null, "Dish ingredient not found");
                 }
 
-                existingIngredient.Quantity = req.Quantity;
-                existingIngredient.Unit = parsedUnit;
+                if (req.IngredientUnit != null)
+                {
+                    var isValidUnit = Enum.TryParse<Unit>(req.IngredientUnit, true, out var parsedUnit);
+
+                    if (!isValidUnit)
+                    {
+                        return OperationResult<bool?>.Failure(null, "Invalid ingredient unit");
+                    }
+
+                    existingIngredient.Unit = parsedUnit;
+                }
+
+
+                if(req.Quantity.HasValue)
+                {
+                    existingIngredient.Quantity = req.Quantity.Value;
+                }
+
+
+                
+
 
                 var result = await _dishIngredientsRepo.UpdateDishIngredientAsync(existingIngredient);
 
@@ -361,7 +369,7 @@ namespace PizzeriaApi.Core.Services
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating dish ingredient");
                 return OperationResult<bool?>.Failure(null, "Error updating dish ingredient");
@@ -370,12 +378,12 @@ namespace PizzeriaApi.Core.Services
 
         private DishIngredient MapOneOposite(AddDishIngredientReq req)
         {
-           try
+            try
             {
                 if (!Enum.TryParse<Unit>(req.IngredientUnit, true, out var parsedUnit))
                 {
                     _logger.LogWarning("Invalid unit: {Unit} for DishId {DishId}, defaulting to Gram", req.IngredientUnit, req.DishId);
-                    parsedUnit = Unit.Gram; 
+                    parsedUnit = Unit.Gram;
                 }
 
                 return new DishIngredient
@@ -386,7 +394,7 @@ namespace PizzeriaApi.Core.Services
                     Unit = parsedUnit
                 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error mapping one dish ingredient");
                 throw;
