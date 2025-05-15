@@ -154,21 +154,31 @@ namespace PizzeriaApi.Core.Services
             {
                 var categoryToUpdate = await _categoriesRepo.GetCategoryByIdAsync(updateCategoryReq.CategoryId);
 
-                
+
+                if (string.IsNullOrWhiteSpace(updateCategoryReq.CategoryName))
+                {
+                    return OperationResult<bool?>.Failure(null, "Category name cannot be empty.");
+                }
+
+                var trimmedName = updateCategoryReq.CategoryName.Trim();
+
+
 
                 if (categoryToUpdate == null)
                 {
                     return OperationResult<bool?>.Failure(null, "Category not found");
                 }
 
-                bool categoryExists = await _categoriesRepo.CategoryNameExistsAsync(updateCategoryReq.CategoryName);
+                bool categoryExists = await _categoriesRepo.CategoryNameExistsAsync(trimmedName);
 
                 if (categoryExists)
                 {
                     return OperationResult<bool?>.Failure(null, "Category name already exists");
                 }
 
-                categoryToUpdate.Name = updateCategoryReq.CategoryName.Trim();
+
+
+                categoryToUpdate.Name = trimmedName;
 
                 var result = await _categoriesRepo.UpdateCategory(categoryToUpdate);
 

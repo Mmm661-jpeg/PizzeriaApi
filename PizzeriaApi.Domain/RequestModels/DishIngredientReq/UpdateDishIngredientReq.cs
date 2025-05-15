@@ -12,10 +12,10 @@ namespace PizzeriaApi.Domain.RequestModels.DishIngredientReq
         public int IngredientId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
-        public decimal Quantity { get; set; }
+        public decimal? Quantity { get; set; }
 
         [StringLength(4, ErrorMessage = "Ingredient unit cannot exceed 4 characters.")]
 
-        public string IngredientUnit { get; set; }
+        public string? IngredientUnit { get; set; }
     }
 }

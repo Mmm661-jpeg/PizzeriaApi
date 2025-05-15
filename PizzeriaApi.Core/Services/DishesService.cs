@@ -218,13 +218,28 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<bool?>.Failure(null, "Dish not found");
                 }
 
-                existingDish.Name = dishReq.Name.Trim();
+                if (!string.IsNullOrWhiteSpace(dishReq.Name))
+                {
+                    existingDish.Name = dishReq.Name.Trim();
+                }
 
-                existingDish.Description = dishReq.Description?.Trim();
+                if (!string.IsNullOrWhiteSpace(dishReq.Description))
+                {
+                    existingDish.Description = dishReq.Description.Trim();
+                }
 
-                existingDish.Price = dishReq.Price;
+                if (dishReq.Price.HasValue)
+                {
+                    existingDish.Price = dishReq.Price.Value;
+                }
 
-                existingDish.CategoryId = dishReq.CategoryId;
+                if (dishReq.CategoryId.HasValue)
+                {
+                    existingDish.CategoryId = dishReq.CategoryId.Value;
+                }
+
+                
+
 
                 var result = await _dishesRepo.UpdateDishAsync(existingDish);
 

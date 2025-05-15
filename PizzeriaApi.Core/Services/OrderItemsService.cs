@@ -135,34 +135,7 @@ namespace PizzeriaApi.Core.Services
             }
         }
 
-        public async Task<OperationResult<bool?>> UpdateOrderItemAsync(UpdateOrderItemReq req)
-        {
-            try
-            {
-                var newOrderItem = new OrderItem
-                {
-                    Id = req.OrderItemId,
-                    Quantity = req.Quantity,
-                };
-
-                var result = await _orderItemsRepo.UpdateOrderItemAsync(newOrderItem);
-
-                if (result)
-                {
-                    return OperationResult<bool?>.Success(true, "Order item updated successfully");
-                }
-                else
-                {
-                    return OperationResult<bool?>.Failure(null, "Failed to update order item");
-                }
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Error updating order item");
-                return OperationResult<bool?>.Failure(null, "Error updating order item");
-            }
-        }
-
+       c
         private OrderItem MapAddRequestBack(AddOrderItemReq req)
         {
             try

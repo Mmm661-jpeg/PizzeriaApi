@@ -473,7 +473,7 @@ namespace PizzeriaApi.Data.Repository
                 }
 
                 existing.Quantity = dishIngredient.Quantity;
-                existing.Unit = dishIngredient.Unit;
+                existing.Unit = dishIngredient.Unit ?? existing.Unit;
 
                 await _dbContext.SaveChangesAsync();
                 return true;
