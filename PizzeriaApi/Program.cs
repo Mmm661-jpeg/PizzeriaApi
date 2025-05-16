@@ -47,33 +47,7 @@ builder.Services.AddAuthenticationExtension(issuer, audience, signingKey);
 
 builder.Services.AddControllers();
 
-//services and repos-------------
-
-builder.Services.AddScoped<IPizzeriaUserRepo, PizzeriaUserRepo>();
-builder.Services.AddScoped<IPizzeriaUserService, PizzeriaUserService>();
-
-builder.Services.AddScoped<IDishIngredientsRepo, DishIngredientsRepo>();
-builder.Services.AddScoped<IDishIngredientsService, DishIngredientsService>();
-
-builder.Services.AddScoped<IDishesRepo, DishesRepo>();
-builder.Services.AddScoped<IDishesService, DishesService>();
-
-builder.Services.AddScoped<IOrdersRepo, OrdersRepo>();
-builder.Services.AddScoped<IOrdersService, OrdersService>();
-
-builder.Services.AddScoped<IOrderItemsRepo,OrderItemsRepo>();
-builder.Services.AddScoped<IOrderItemsService, OrderItemsService>();
-
-builder.Services.AddScoped<IIngredientsRepo, IngredientsRepo>();
-builder.Services.AddScoped<IIngredientsService, IngredientsService>();
-
-builder.Services.AddScoped<ICategoriesRepo,CategoriesRepo>();
-builder.Services.AddScoped<ICategoriesService, CategoriesService>();
-
-builder.Services.AddTransient<ITokenGenerator, TokenGenerator>();
-
-//Services and repos-----------------
-
+builder.Services.AddServicesExtension();
 
 
 
