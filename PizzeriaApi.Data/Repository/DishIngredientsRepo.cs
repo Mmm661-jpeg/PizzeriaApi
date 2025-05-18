@@ -215,7 +215,7 @@ namespace PizzeriaApi.Data.Repository
             try
             {
                 var result = await _dbContext.DishIngredients
-                    .AnyAsync(di => di.DishId == dishId && di.Ingredient.Name.Equals(ingredientName, StringComparison.OrdinalIgnoreCase));
+                    .AnyAsync(di => di.Ingredient.Name.ToLower() == ingredientName.ToLower());
 
                 return result;
             }

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Core.Services;
 using PizzeriaApi.Data.DataModels;
@@ -10,16 +12,39 @@ using PizzeriaApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+//async Task SeedRoles(IServiceProvider serviceProvider)
+//{
+//    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+//    string[] roleNames = { "RegularUser", "PremiumUser", "Admin" };
+
+//    foreach (var roleName in roleNames)
+//    {
+//        var roleExists = await roleManager.RoleExistsAsync(roleName);
+//        if (!roleExists)
+//        {
+//            var result = await roleManager.CreateAsync(new IdentityRole(roleName));
+//            if (!result.Succeeded)
+//            {
+//                throw new Exception($"Failed to create role {roleName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+//            }
+//        }
+//    }
+//}
+
 // Add services to the container.
 
 builder.Services.AddDbContext<PizzeriaApiDBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDefaultIdentity<PizzeriaUser>(options =>
+builder.Services.AddIdentity<PizzeriaUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false; // Customize as needed
 })
-.AddEntityFrameworkStores<PizzeriaApiDBContext>();
+.AddEntityFrameworkStores<PizzeriaApiDBContext>()
+.AddRoles<IdentityRole>();
+
 
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -60,15 +85,28 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerExtended();
 }
 
-app.UseHttpsRedirection();
+//app.UseSwaggerExtended();
+
+//app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    await SeedRoles(services);
+//}
+
+
+
+await app.RunAsync();
+
+

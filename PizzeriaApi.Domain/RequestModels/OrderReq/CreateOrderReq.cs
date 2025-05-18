@@ -9,9 +9,9 @@ namespace PizzeriaApi.Domain.RequestModels.OrderReq
 {
     public class CreateOrderReq
     {
-        [Required(ErrorMessage = "UserId is required.")]
-        [StringLength(450,ErrorMessage = "UserId must be less than 450 characters.")]
-        public string UserId { get; set; }
+        //[Required(ErrorMessage = "UserId is required.")]
+        //[StringLength(450,ErrorMessage = "UserId must be less than 450 characters.")]
+        //public string? UserId { get; set; }
 
     }
 }

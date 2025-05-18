@@ -81,6 +81,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser([FromQuery] string userId)// 2 versions
         {
@@ -95,7 +96,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpDelete("DeleteMyUser")]
         public async Task<IActionResult> DeleteMyUser()// 2 versions
         {
@@ -131,7 +132,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
+        [Authorize]
         [HttpGet("GetMyUser")]
         public async Task<IActionResult> GetMyUser() //2 versions
         {
@@ -153,6 +155,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetUserByUsername")]
         public async Task<IActionResult> GetUserByUsername([FromQuery] string username)
         {
@@ -167,6 +170,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetUserByEmail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
@@ -181,6 +185,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetPremiumUsers")]
         public async Task<IActionResult> GetPremiumUsers()
         {
@@ -195,6 +201,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetRegularUsers")]
         public async Task<IActionResult> GetRegularUsers()
         {
@@ -209,6 +217,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetUsersWithOrders")]
 
         public async Task<IActionResult> GetUsersWithOrders()
@@ -224,6 +234,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetUsersByOrderStatus")]
 
         public async Task<IActionResult> GetUsersByOrderStatus([FromQuery] string orderStatus)
@@ -239,6 +251,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetBonusByUserId")]
         public async Task<IActionResult> GetBonusByUserId([FromQuery] string userId) //2 versions
         {
@@ -253,7 +266,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+
+        [Authorize(AuthenticationSchemes ="Bearer",Roles ="PremiumUser")]
         [HttpGet("GetMyBonus")]
         public async Task<IActionResult> GetMyBonus() //2 versions
         {
@@ -276,6 +290,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateBonus")]
         public async Task<IActionResult> UpdateBonus([FromQuery] string userId, [FromQuery] int newBonusValue)
         {
@@ -290,6 +306,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("UserCanUseBonus")]
 
         public async Task<IActionResult> UserCanUseBonus([FromQuery] string userId) // 2 versions
@@ -305,7 +323,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles ="User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpGet("CanUseMyBonus")]
 
         public async Task<IActionResult> CanUseMyBonus() // 2 versions
@@ -329,6 +347,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetAllUsers")]
 
         public async Task<IActionResult> GetAllUsers()
@@ -344,6 +364,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetUsersWithNoOrders")]
         public async Task<IActionResult> GetUsersWithNoOrders()
         {
@@ -358,6 +380,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateUserRole")]
         public async Task<IActionResult> UpdateUserRole([FromQuery] string userId, [FromQuery] string role)
         {
@@ -371,6 +395,16 @@ namespace PizzeriaApi.Controllers
                 return BadRequest(new { Data = result.Data, Message = result.Message });
             }
         }
+
+        [HttpGet("test-auth")]
+        public IActionResult TestAuth()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
+            else
+                return Unauthorized();
+        }
+
 
 
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Domain.RequestModels.IngredientReq;
@@ -7,6 +8,7 @@ namespace PizzeriaApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class IngredientController : ControllerBase
     {
         private readonly IIngredientsService _ingredientsService;
@@ -15,6 +17,8 @@ namespace PizzeriaApi.Controllers
         {
             _ingredientsService = ingredientsService;
         }
+
+
 
         [HttpPost("AddIngredient")]
         public async Task<IActionResult> AddIngredient([FromBody] AddIngredientReq req)
@@ -31,6 +35,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+
         [HttpPut("UpdateIngredient")]
         public async Task<IActionResult> UpdateIngredient([FromBody] UpdateIngredientReq req)
         {
@@ -46,6 +52,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+      
         [HttpDelete("DeleteIngredient")]
         public async Task<IActionResult> DeleteIngredient([FromQuery] int ingredientId)
         {
@@ -61,6 +69,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+    
         [HttpGet("GetAllIngredients")]
         public async Task<IActionResult> GetAllIngredients()
         {

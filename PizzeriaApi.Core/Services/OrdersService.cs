@@ -42,13 +42,17 @@ namespace PizzeriaApi.Core.Services
             }
         }
 
-        public async Task<OperationResult<bool?>> CreateOrderAsync(CreateOrderReq req)
+        public async Task<OperationResult<bool?>> CreateOrderAsync(string userId)
         {
+            if(string.IsNullOrEmpty(userId))
+            {
+                return OperationResult<bool?>.Failure(null, "User ID is required");
+            }
             try
             {
                 var orderToCreate = new Order()
                 {
-                    UserId = req.UserId,
+                    UserId = userId
                 };
 
                 var result = await _ordersRepo.CreateOrderAsync(orderToCreate);

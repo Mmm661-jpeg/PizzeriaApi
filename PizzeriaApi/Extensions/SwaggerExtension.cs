@@ -53,7 +53,7 @@
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API");
-                options.RoutePrefix = string.Empty;
+                options.RoutePrefix = "swagger";
             });
 
             return app;

@@ -57,8 +57,20 @@ namespace PizzeriaApi.Data.Repository
         {
             try
             {
-                var premiumUsersIds = await _dbContext.UserRoles
-                    .Where(ur => ur.RoleId == UserRoles.PremiumUser.ToString())
+
+                var premiumRoleId = await _dbContext.Roles
+                                           .Where(r => r.Name == UserRoles.PremiumUser.ToString())
+                                           .Select(r => r.Id)
+                                           .FirstOrDefaultAsync();
+
+                if (premiumRoleId == null)
+                {
+                    _logger.LogWarning("No role found with name {RoleName}", UserRoles.PremiumUser.ToString());
+                    return null;
+                }
+
+                    var premiumUsersIds = await _dbContext.UserRoles
+                    .Where(ur => ur.RoleId ==premiumRoleId)
                     .Select(ur => ur.UserId)
                     .ToListAsync();
 
@@ -78,8 +90,20 @@ namespace PizzeriaApi.Data.Repository
         {
             try
             {
-                var regularUsersIds = _dbContext.UserRoles
-                    .Where(ur => ur.RoleId == UserRoles.RegularUser.ToString())
+
+                var regularRoleId = await _dbContext.Roles
+                                            .Where(r => r.Name == UserRoles.RegularUser.ToString())
+                                            .Select(r => r.Id)
+                                            .FirstOrDefaultAsync();
+
+                if (regularRoleId == null)
+                {
+                    _logger.LogWarning("No role found with name {RoleName}", UserRoles.RegularUser.ToString());
+                    return null;
+                }
+
+                    var regularUsersIds = _dbContext.UserRoles
+                    .Where(ur => ur.RoleId == regularRoleId)
                     .Select(ur => ur.UserId)
                     .ToList();
 

@@ -29,10 +29,10 @@ namespace PizzeriaApi.Controllers
             return userId;
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpPost("CreateOrder")]
 
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderReq req)
+        public async Task<IActionResult> CreateOrder()
         {
 
             var userId = ReadUserIdFromToken();
@@ -42,9 +42,8 @@ namespace PizzeriaApi.Controllers
                 return Unauthorized(new { Data = false, Message = "Unauthorized" });
             }
 
-            req.UserId = userId;
 
-            var result = await _ordersService.CreateOrderAsync(req);
+            var result = await _ordersService.CreateOrderAsync(userId);
 
             if (result.IsSuccess)
             {
@@ -56,6 +55,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateOrderStatus")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusReq req)
         {
@@ -74,6 +74,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpDelete("DeleteOrder")]
         public async Task<IActionResult> DeleteOrder([FromQuery] int orderId)
         {
@@ -93,7 +94,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost("CancelOrder")]
         public async Task<IActionResult> CancelOrder([FromBody] CancelOrderReq req)
         {
@@ -120,6 +121,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetOrdersByUserId")]
         public async Task<IActionResult> GetOrdersByUserId([FromQuery] string userId)//2 versions
         {
@@ -135,7 +137,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpGet("GetMyOrders")]
         public async Task<IActionResult> GetOrdersByUserId()//2 versions
         {
@@ -159,7 +161,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetOrderByOrderId")]
         public async Task<IActionResult> GetOrderByOrderId([FromQuery] int orderId)
         {
@@ -175,6 +177,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetAllOrders")]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -190,6 +193,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetOrdersByDate")]
         public async Task<IActionResult> GetOrdersByDate([FromQuery] DateTime? to, [FromQuery] DateTime? from)
         {
@@ -205,6 +209,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetOrdersByStatus")]
         public async Task<IActionResult> GetOrdersByStatus([FromQuery] string status)
         {
@@ -220,6 +225,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetOrdersUsingBonus")]
         public async Task<IActionResult> GetOrdersUsingBonus()
         {
@@ -235,6 +241,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetPendingOrderForUser")]
 
         public async Task<IActionResult> GetPendingOrderForUser([FromQuery] string userId) //2 versions
@@ -251,7 +258,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpGet("GetMyPendingOrders")]
 
         public async Task<IActionResult> GetPendingOrderForUser() //2 versions
@@ -276,7 +283,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
         [HttpPost("SetOrderPaid")]
         public async Task<IActionResult> SetOrderPaid([FromBody] SetOrderPaidReq req)
         {
@@ -300,6 +307,8 @@ namespace PizzeriaApi.Controllers
                 return BadRequest(new { Data = result.Data, Message = result.Message });
             }
         }
+
+      
 
 
 
