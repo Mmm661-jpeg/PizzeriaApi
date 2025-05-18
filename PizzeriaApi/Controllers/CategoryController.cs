@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Domain.RequestModels.CategoryReq;
@@ -16,6 +17,9 @@ namespace PizzeriaApi.Controllers
             _categoriesService = categoriesService;
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+
         [HttpPost("AddCategory")]
 
         public async Task<IActionResult> AddCategory([FromBody] AddCategoryReq req)
@@ -32,6 +36,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateCategory")]
 
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryReq req)
@@ -47,6 +53,8 @@ namespace PizzeriaApi.Controllers
                 return BadRequest(new { data = result.Data, message = result.Message });
             }
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
 
         [HttpDelete("DeleteCategory")]
         public async Task<IActionResult> DeleteCategory([FromQuery] int categoryId)
@@ -94,9 +102,17 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+       
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategories()
         {
+
+            var headers = Request.Headers;
+            foreach (var header in headers)
+            {
+                Console.WriteLine($"{header.Key}: {header.Value}");
+            }
+
             var result = await _categoriesService.GetAllCategoriesAsync();
 
             if (result.IsSuccess)

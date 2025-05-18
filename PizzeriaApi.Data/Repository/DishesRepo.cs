@@ -65,6 +65,9 @@ namespace PizzeriaApi.Data.Repository
 
                 await _dbContext.AddAsync(dish);
                 await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                _logger.LogInformation("AddDishAsync: Dish {DishName} added successfully.", dish.Name);
                 return true;
             }
             catch(Exception ex)

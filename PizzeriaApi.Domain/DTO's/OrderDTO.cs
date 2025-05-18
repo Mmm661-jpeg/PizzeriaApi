@@ -27,6 +27,8 @@ namespace PizzeriaApi.Domain.DTO_s
 
         public OrderStatus Status { get; set; }
 
+        public string StatusString => Status.ToString();
+
         public bool UsedBonusReward { get; set; }
 
         public DateTime? CancelledAt { get; set; }

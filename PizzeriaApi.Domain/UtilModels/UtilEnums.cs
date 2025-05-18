@@ -18,7 +18,9 @@ namespace PizzeriaApi.Domain.UtilModels
         public enum UserRoles //update too this in repos also;
         {
             RegularUser = 1,
-            PremiumUser = 2
+            PremiumUser = 2,
+            Admin = 3
+
         }
 
         public enum  DishesFilter

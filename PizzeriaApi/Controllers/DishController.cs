@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using PizzeriaApi.Core.Interfaces;
@@ -17,7 +18,9 @@ namespace PizzeriaApi.Controllers
             _dishesService = dishesService;
         }
 
-        [HttpGet("AddDish")]
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+        [HttpPost("AddDish")]
 
         public async Task<IActionResult> AddDish([FromBody] AddDishReq req)
         {
@@ -33,6 +36,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateDish")]
 
         public async Task<IActionResult> UpdateDish([FromBody] UpdateDishReq req)
@@ -49,6 +54,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpDelete("DeleteDish")]
 
         public async Task<IActionResult> DeleteDish([FromQuery] int dishId)

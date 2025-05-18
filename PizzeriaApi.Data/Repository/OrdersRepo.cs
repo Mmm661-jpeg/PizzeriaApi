@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using PizzeriaApi.Data.DataModels;
 using PizzeriaApi.Data.Interfaces;
 using PizzeriaApi.Domain.Models;
-using PizzeriaApi.Domain.UtilModels;
 using static PizzeriaApi.Domain.UtilModels.UtilEnums;
 
 namespace PizzeriaApi.Data.Repository
@@ -182,12 +181,12 @@ namespace PizzeriaApi.Data.Repository
 
         public async Task<IEnumerable<Order>> GetOrdersByStatusAsync(string status)
         {
-            if(string.IsNullOrEmpty(status))
+            if (string.IsNullOrEmpty(status))
             {
                 _logger.LogWarning("GetOrdersByStatusAsync: Status invalid");
                 return null;
             }
-           
+
             try
             {
                 if (Enum.TryParse<OrderStatus>(status, true, out var orderStatus) == false)
@@ -267,6 +266,8 @@ namespace PizzeriaApi.Data.Repository
                 var order = await _dbContext.Orders
                     .Include(o => o.User)
                     .Include(o => o.Items)
+                        .ThenInclude(i => i.Dish)
+                         .ThenInclude(d => d.Category)
                     .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
 
                 if (order == null)
@@ -276,10 +277,29 @@ namespace PizzeriaApi.Data.Repository
 
                 }
 
+                var usersRoleId = await _dbContext.UserRoles
+                                            .Where(ur => ur.UserId == userId)
+                                            .Select(ur => ur.RoleId)
+                                            .FirstOrDefaultAsync();
 
+                if (usersRoleId == null)
+                {
+                    _logger.LogWarning("SetOrderPaid: No role found for user with id: {UserId}", userId);
+                    return false;
+                }
 
-                bool isPremiumUser = await _dbContext.UserRoles
-                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId.Equals(UserRoles.PremiumUser.ToString()));
+                var userRoleName = await _dbContext.Roles
+                                        .Where(r => r.Id == usersRoleId)
+                                        .Select(r => r.Name)
+                                        .FirstOrDefaultAsync();
+
+                if (userRoleName == null)
+                {
+                    _logger.LogWarning("SetOrderPaid: No role found for user with id: {UserId}", userId);
+                    return false;
+                }
+
+                bool isPremiumUser = userRoleName == UserRoles.PremiumUser.ToString();
 
                 if (Enum.TryParse<OrderStatus>(order.Status.ToString(), out var status))
                 {
@@ -290,12 +310,14 @@ namespace PizzeriaApi.Data.Repository
                     }
                 }
 
-                bool threePizzas = order.Items.Count(i => i.Dish.Category.Name.Equals("Pizza", StringComparison.OrdinalIgnoreCase)) >= 3;
+                bool threePizzas = order.Items
+                                 .Where(i => i.Dish?.Category.Name.Equals("Pizza", StringComparison.OrdinalIgnoreCase) == true)
+                                 .Sum(i => i.Quantity) >= 3;
 
 
                 if (isPremiumUser)
                 {
-                    if (useBonus && order.User.BonusPoints > minBonusPoints)
+                    if (useBonus && order.User?.BonusPoints > minBonusPoints)
                     {
                         order.UsedBonusReward = true;
                         order.User.BonusPoints = 0;
@@ -334,9 +356,9 @@ namespace PizzeriaApi.Data.Repository
             }
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId,string status) //Status
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status) //Status
         {
-            if(string.IsNullOrEmpty(status))
+            if (string.IsNullOrEmpty(status))
             {
                 _logger.LogWarning("UpdateOrderAsync: Status invalid");
                 return false;
@@ -344,13 +366,13 @@ namespace PizzeriaApi.Data.Repository
 
             try
             {
-                if(Enum.TryParse<OrderStatus>(status,true,out var newOrderStatus) == false)
+                if (Enum.TryParse<OrderStatus>(status, true, out var newOrderStatus) == false)
                 {
                     _logger.LogWarning("UpdateOrderAsync: Status invalid");
                     return false;
                 }
 
-                if(newOrderStatus != OrderStatus.Paid && newOrderStatus != OrderStatus.Delivered)
+                if (newOrderStatus != OrderStatus.Paid && newOrderStatus != OrderStatus.Delivered)
                 {
                     // Only allows updating an order to Paid or Deliver
                     _logger.LogWarning("UpdateOrderAsync: Status invalid");
@@ -392,6 +414,7 @@ namespace PizzeriaApi.Data.Repository
 
                 if (order == null || order.Status != OrderStatus.Pending)
                 {
+                    _logger.LogDebug("CancellOrderAsync: No order found with id: {OrderId}", orderId);
                     return false;
                 }
 

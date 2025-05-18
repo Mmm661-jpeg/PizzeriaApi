@@ -24,7 +24,7 @@ namespace PizzeriaApi.Core.Interfaces
 
         Task<OperationResult<IEnumerable<OrderDTO>>> GetOrdersUsingBonusAsync();
 
-        Task<OperationResult<bool?>> CreateOrderAsync(CreateOrderReq req);
+        Task<OperationResult<bool?>> CreateOrderAsync(string userId);
 
         Task<OperationResult<bool?>> UpdateOrderStatusAsync(UpdateOrderStatusReq req);
 

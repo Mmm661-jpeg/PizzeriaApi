@@ -41,6 +41,15 @@ namespace PizzeriaApi.Core.Services
 
                     return OperationResult<string?>.Failure(userId, "User not found.");
                 }
+
+                var isAdmin = await _userManager.IsInRoleAsync(userToDelete, UserRoles.Admin.ToString());
+
+                if (isAdmin)
+                {
+                    return OperationResult<string?>.Failure(userId, "Cannot delete a user with Admin role.");
+                }
+
+
                 var result = await _userManager.DeleteAsync(userToDelete);
 
                 if (result.Succeeded)
@@ -337,7 +346,7 @@ namespace PizzeriaApi.Core.Services
                     return OperationResult<string?>.Failure(null, "Invalid Username or Password");
                 }
 
-                var token = _tokenGenerator.GenerateToken(user);
+                var token = await _tokenGenerator.GenerateToken(user);
 
                 return OperationResult<string?>.Success(token, "User logged in successfully.");
             }
@@ -354,9 +363,10 @@ namespace PizzeriaApi.Core.Services
             {
                 var existinUser = await _userManager.FindByNameAsync(registerUserReq.UserName);
 
-                if (existinUser != null)
+
+                if (existinUser != null || existinUser?.Email == registerUserReq.Email)
                 {
-                    return OperationResult<string?>.Failure(null, "Username already exists.");
+                    return OperationResult<string?>.Failure(null, "Username or Email already exists.");
                 }
 
                 var newUser = new PizzeriaUser
@@ -366,10 +376,19 @@ namespace PizzeriaApi.Core.Services
                     PhoneNumber = registerUserReq.PhoneNumber.Trim()
                 };
 
+               
+
                 var result = await _userManager.CreateAsync(newUser, registerUserReq.Password);
 
                 if (result.Succeeded)
                 {
+                    var addedRole = await _userManager.AddToRoleAsync(newUser, UserRoles.RegularUser.ToString());
+
+                    if (addedRole.Succeeded == false)
+                    {
+                        var errorMessage = GetErrorMessage(addedRole);
+                        return OperationResult<string?>.Failure(null, "Failed to add role to user. " + errorMessage);
+                    }
 
                     return OperationResult<string?>.Success(null, "User registered successfully.");
 
@@ -520,6 +539,11 @@ namespace PizzeriaApi.Core.Services
                 if (!Enum.TryParse<UserRoles>(role, true, out var newRole))
                 {
                     return OperationResult<bool?>.Failure(null, "Invalid role.");
+                }
+
+                if(newRole == UserRoles.Admin)
+                {
+                    return OperationResult<bool?>.Failure(null, "Cannot assign Admin role through api.");
                 }
 
                 result = await _userManager.AddToRoleAsync(user, newRole.ToString());

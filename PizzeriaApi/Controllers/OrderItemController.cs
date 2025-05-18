@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Domain.RequestModels.OrderItemReq;
@@ -7,6 +8,7 @@ namespace PizzeriaApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser")]
     public class OrderItemController : ControllerBase
     {
         private readonly IOrderItemsService _orderItemService;
@@ -16,6 +18,7 @@ namespace PizzeriaApi.Controllers
             _orderItemService = orderItemService;
         }
 
+       
         [HttpPost("AddOneOrderItem")]
 
         public async Task<IActionResult> AddOneOrderItem([FromBody] AddOrderItemReq req)
@@ -32,6 +35,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        
         [HttpPost("AddManyOrderItems")]
 
         public async Task<IActionResult> AddManyOrderItems([FromBody] IEnumerable<AddOrderItemReq>  req)
@@ -48,6 +52,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+       
         [HttpPut("UpdateOrderItem")]
         public async Task<IActionResult> UpdateOrderItem([FromBody] UpdateOrderItemReq req)
         {

@@ -29,8 +29,12 @@ namespace PizzeriaApi.Extensions
                         ValidIssuer = issuer,
                         ValidAudience = audience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
-                        RoleClaimType = ClaimTypes.Role
+                        RoleClaimType = ClaimTypes.Role,
+                        NameClaimType = ClaimTypes.NameIdentifier
                     };
+
+                    
+
                 });
 
             return services;

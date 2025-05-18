@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PizzeriaApi.Data.DataModels
 {
-    public class PizzeriaApiDBContext : IdentityDbContext<PizzeriaUser>
+    public class PizzeriaApiDBContext : IdentityDbContext<PizzeriaUser ,IdentityRole, string>
     {
         public PizzeriaApiDBContext(DbContextOptions<PizzeriaApiDBContext> options)
 

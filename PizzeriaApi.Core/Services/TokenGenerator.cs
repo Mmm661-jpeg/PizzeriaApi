@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Domain.Models;
@@ -17,14 +18,17 @@ namespace PizzeriaApi.Core.Services
     {
 
         private readonly JwtSettings _jwtSettings;
+        private readonly UserManager<PizzeriaUser> _userManager;
 
-        public TokenGenerator(IOptions<JwtSettings> jwtSettings)
+
+        public TokenGenerator(IOptions<JwtSettings> jwtSettings,UserManager<PizzeriaUser> userManager)
         {
             _jwtSettings = jwtSettings.Value;
-            
+            _userManager = userManager;
+
         }
 
-        public string GenerateToken(PizzeriaUser pizzeriaUser)
+        public async Task<string> GenerateToken(PizzeriaUser pizzeriaUser)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -39,14 +43,29 @@ namespace PizzeriaApi.Core.Services
 
             var adminUsername = _jwtSettings.AdminUsername;
 
-            if (pizzeriaUser.UserName == adminUsername)
+            var roles = await _userManager.GetRolesAsync(pizzeriaUser);
+
+            if (roles != null && roles.Count > 0)
             {
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
             }
             else
             {
-                claims.Add(new Claim(ClaimTypes.Role, "User"));
+                if (pizzeriaUser.UserName == adminUsername)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                }
+                else
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, "RegularUser"));
+                    //Throw exception if user is not admin and has no roles
+                }
             }
+
+         
 
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,

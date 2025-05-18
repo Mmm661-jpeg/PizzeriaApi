@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Domain.RequestModels.DishIngredientReq;
@@ -16,6 +17,8 @@ namespace PizzeriaApi.Controllers
             _dishIngredientsService = dishIngredientsService;
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPost("AddDishIngredient")]
 
         public async Task<IActionResult> AddDishIngredient([FromBody] AddDishIngredientReq req)
@@ -32,6 +35,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPost("AddManyDishIngredients")]
         public async Task<IActionResult> AddManyDishIngredients([FromBody] IEnumerable<AddDishIngredientReq> req)
         {
@@ -47,6 +52,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpPut("UpdateDishIngredient")]
         public async Task<IActionResult> UpdateDishIngredient([FromBody] UpdateDishIngredientReq req)
         {
@@ -62,6 +69,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpDelete("DeleteDishIngredient")]
         public async Task<IActionResult> DeleteDishIngredient([FromQuery] int dishIngredientId, int ingredientId)
         {
@@ -153,6 +162,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("CalculateEventuallIngredientCost")]
         public async Task<IActionResult> CalculateEventuallIngredientCost([FromQuery] int ingredientId, decimal quantity)
         {
@@ -168,6 +179,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("CalculateCostForDish")]
         public async Task<IActionResult> CalculateCostForDish([FromQuery] int dishId)
         {
@@ -183,6 +196,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("GetRecommendedPriceForDish")]
         public async Task<IActionResult> GetRecommendedPriceForDish([FromQuery] int dishId)
         {
@@ -198,6 +213,8 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
         [HttpGet("EvaluateCurrentPriceForDish")]
         public async Task<IActionResult> EvaluateCurrentPriceForDish([FromQuery] int dishId)
         {

@@ -9,6 +9,6 @@ namespace PizzeriaApi.Core.Interfaces
 {
     public interface ITokenGenerator
     {
-        string GenerateToken(PizzeriaUser pizzeriaUser);
+        Task<string> GenerateToken(PizzeriaUser pizzeriaUser);
     }
 }
