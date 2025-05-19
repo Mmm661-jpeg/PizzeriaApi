@@ -338,6 +338,22 @@ namespace PizzeriaApi.Data.Repository
 
                 }
 
+                //A payment table should take care off these.
+                if (amountPaid > order.TotalPrice)
+                {
+                    var overpaidAmount = amountPaid - order.TotalPrice;
+                    _logger.LogInformation("SetOrderPaid: User overpaid by {OverpaidAmount} for order {OrderId}. Consider issuing credit or refund in future.", overpaidAmount, orderId);
+                }
+                else if (amountPaid < order.TotalPrice)
+                {
+                    var underPaidAmount = amountPaid - order.TotalPrice;
+                    _logger.LogInformation("SetOrderPaid: User underpaid by {UnderpaidAmount} for order {OrderId}.", underPaidAmount, orderId);
+                }
+                else
+                {
+                    _logger.LogInformation("SetOrderPaid: User paid exact amount for order {OrderId}.", orderId);
+                }
+
 
                 order.FinalizedAt = DateTime.UtcNow;
                 order.Status = OrderStatus.Paid;
