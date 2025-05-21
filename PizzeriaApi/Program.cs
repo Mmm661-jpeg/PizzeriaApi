@@ -11,8 +11,16 @@ using PizzeriaApi.Data.Repository;
 using PizzeriaApi.Domain.Models;
 using PizzeriaApi.Domain.UtilModels;
 using PizzeriaApi.Extensions;
+using Microsoft.Extensions.Logging.AzureAppServices;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Logging.AddConsole();   
+builder.Logging.AddDebug();      
+builder.Logging.AddAzureWebAppDiagnostics(); 
+
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 
 
