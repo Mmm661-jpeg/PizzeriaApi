@@ -2,6 +2,7 @@ using Azure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using PizzeriaApi.Core.Interfaces;
 using PizzeriaApi.Core.Services;
 using PizzeriaApi.Data.DataModels;
@@ -17,12 +18,46 @@ var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultUrl = builder.Configuration["KeyVault:Url"];
 
-if (!string.IsNullOrEmpty(keyVaultUrl))
+var keyVaultEndpoint = Environment.GetEnvironmentVariable("AZURE_KEYVAULT_ENDPOINT");
+
+if (!string.IsNullOrEmpty(keyVaultEndpoint))
 {
-    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+    keyVaultUrl = keyVaultEndpoint;
 }
 
+if (!string.IsNullOrEmpty(keyVaultUrl))
+{
+    try
+    {
+        builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+        Console.WriteLine($"Successfully connected to Key Vault at {keyVaultUrl}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to connect to Key Vault: {ex.Message}");
+    }
+}
+else
+{
+    Console.WriteLine("No Key Vault URL found in configuration");
+}
+
+//if (!string.IsNullOrEmpty(keyVaultUrl))
+//{
+//    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+//}
+
 var connectionString = builder.Configuration["ConnectionString"];
+
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("Warning: Connection string is null or empty");
+}
+else
+{
+    Console.WriteLine("Connection string retrieved successfully");
+}
 
 //async Task SeedRoles(IServiceProvider serviceProvider)
 //{
@@ -64,6 +99,12 @@ var jwtSettingsRaw = builder.Configuration.GetSection("JwtSettings");
 var issuer = jwtSettingsRaw["Issuer"];
 var audience = jwtSettingsRaw["Audience"];
 var signingKey = jwtSettingsRaw["Secret"];
+
+
+
+Console.WriteLine($"JWT Issuer: {issuer}");
+Console.WriteLine($"JWT Audience: {audience}");
+Console.WriteLine("JWT Secret " + (string.IsNullOrEmpty(signingKey) ? "not found" : "found"));
 
 builder.Services.AddAuthorization(options =>
 {
