@@ -25,14 +25,17 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Clean
+        run: dotnet clean
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Verify Critical Packages
         run: |
-          dotnet list package Microsoft.AspNetCore.Authentication.JwtBearer
-          dotnet list package System.IdentityModel.Tokens.Jwt
-          dotnet list package Microsoft.IdentityModel.Tokens
+          dotnet list package --include-transitive | findstr "Microsoft.AspNetCore.Authentication.JwtBearer"
+          dotnet list package --include-transitive | findstr "System.IdentityModel.Tokens.Jwt"
+          dotnet list package --include-transitive | findstr "Microsoft.IdentityModel.Tokens"
 
       - name: Build with dotnet
         run: dotnet build --configuration Release  --no-restore
