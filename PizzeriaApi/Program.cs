@@ -143,12 +143,12 @@ builder.Services.AddSwaggerExtended();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerExtended();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwaggerExtended();
+//}
 
-//app.UseSwaggerExtended();
+app.UseSwaggerExtended();
 
 //app.UseHttpsRedirection();
 
