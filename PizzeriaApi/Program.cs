@@ -97,7 +97,8 @@ builder.Services.AddIdentity<PizzeriaUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedAccount = false; // Customize as needed
 })
 .AddEntityFrameworkStores<PizzeriaApiDBContext>()
-.AddRoles<IdentityRole>();
+.AddRoles<IdentityRole>()
+.AddDefaultTokenProviders();
 
 
 
