@@ -61,15 +61,7 @@ namespace PizzeriaApi.Controllers
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserReq updateUserReq)
         {
-            var userId = ReadUserIdFromToken();
-
-            if(userId == null)
-            {
-                return Unauthorized(new { Data = false, Message = "Unauthorized" });
-            }
-
-            updateUserReq.UserId = userId;
-
+        
             var result = await _pizzeriaUserService.UpdateUserAsync(updateUserReq);
             if (result.IsSuccess)
             {

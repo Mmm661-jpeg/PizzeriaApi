@@ -150,7 +150,6 @@ var app = builder.Build();
 
 app.UseSwaggerExtended();
 
-//app.UseHttpsRedirection();
 
 app.UseRouting();
 
