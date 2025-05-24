@@ -83,6 +83,7 @@ namespace PizzeriaApi.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "RegularUser,PremiumUser,Admin")]
         [HttpGet("GetOrderItemsByOrderId")]
         public async Task<IActionResult> GetOrderItemsByOrderId([FromQuery] int orderId)
         {

@@ -229,8 +229,11 @@ namespace PizzeriaApi.Data.Repository
 
             try
             {
-                var dishes = await _dbContext.Dishes.AsNoTracking().Where(d => d.Name == dishName)
-                                                    .ToListAsync();
+                
+
+                var dishes = await _dbContext.Dishes.AsNoTracking()
+                                                   .Where(d=> d.Name.Contains(dishName))
+                                                   .ToListAsync();
                 if (!dishes.Any())
                 {
                     _logger.LogDebug("GetDishesByNameAsync: No dishes found! with name: {DishName}", dishName);
