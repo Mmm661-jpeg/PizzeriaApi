@@ -26,12 +26,12 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 var keyVaultUrl = builder.Configuration["KeyVault:Url"];
 
-var keyVaultEndpoint = Environment.GetEnvironmentVariable("AZURE_KEYVAULT_ENDPOINT");
+//var keyVaultEndpoint = Environment.GetEnvironmentVariable("AZURE_KEYVAULT_ENDPOINT");
 
-if (!string.IsNullOrEmpty(keyVaultEndpoint))
-{
-    keyVaultUrl = keyVaultEndpoint;
-}
+//if (!string.IsNullOrEmpty(keyVaultEndpoint))
+//{
+//    keyVaultUrl = keyVaultEndpoint;
+//}
 
 if (!string.IsNullOrEmpty(keyVaultUrl))
 {
