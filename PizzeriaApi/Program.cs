@@ -44,11 +44,6 @@ else
     Console.WriteLine("No Key Vault URL found in configuration");
 }
 
-//if (!string.IsNullOrEmpty(keyVaultUrl))
-//{
-//    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
-//}
-
 var connectionString = builder.Configuration["ConnectionString"];
 
 
@@ -131,17 +126,13 @@ builder.Services.AddServicesExtension();
 
 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerExtended();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwaggerExtended();
-//}
+
 
 app.UseSwaggerExtended();
 
